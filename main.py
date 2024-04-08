@@ -1,5 +1,11 @@
 #!/usr/bin/env python
-from math import ceil
+import subprocess
+import os
+
+
+subprocess.run('python "C:\\Users\\HUGO\\AppData\\Roaming\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\Beat_Script\\Davinci-Resolve-Beat-detection\\hello.py" a')
+
+
 
 projectManager = resolve.GetProjectManager()
 project = projectManager.GetCurrentProject()
@@ -9,7 +15,7 @@ root_folder = media_pool.GetRootFolder()
 
 fps = project.GetSetting("timelineFrameRate")
 
-posX,posY = 0,0
+posX,posY = 750,325
 width,height = 450,250
 path = ""
 
@@ -18,15 +24,16 @@ def window(posX,posY,width,height):
     ui = fusion.UIManager
     dispatcher = bmd.UIDispatcher(ui)
 
-    win = dispatcher.AddWindow({ 'ID': 'myWindow','Geometry': [posX,posY,width,height]},
-                               [ ui.Label({ 'Text': 'Hello World!' }),
-                                 ui.Button({'ID' : 'Browse','Text':'Browse','Geometry': [width/2,height/2,width/5,height/5]}),
-                                 ui.LineEdit({'ID':'le_1','PlaceholderText':'Name of the file','Events': {'TextEdited': True}})])
+    win = dispatcher.AddWindow({ 'ID': 'myWindow',  'WindowTitle': 'My Window','Geometry': [posX,posY,width,height]},
+                               [ ui.Label({ 'Text': 'Path :',}),
+                                 ui.Button({'ID' : 'Browse','Text':'Execute','Geometry': [width/3,height/1.4,width/4,height/4]}),
+                                 ui.LineEdit({'ID':'le_1','PlaceholderText':'Path of the file','Events': {'TextEdited': True},'Geometry': [width/7,height/2.5,width/1.5,height/5]})])
 
-    
+
+
     def OnClose(ev):
-            dispatcher.ExitLoop()
-            win.Hide()
+        dispatcher.ExitLoop()
+        win.Hide()
             
     
     def OnButtonClicked(ev):
@@ -39,15 +46,17 @@ def window(posX,posY,width,height):
         path = ev["Text"]
 
 
+        
 
     win.On.myWindow.Close = OnClose
     win.On['le_1'].TextEdited = OnLineEditTextEdited
     win.On['Browse'].Clicked = OnButtonClicked
     win.Show()
     dispatcher.RunLoop()
-    
-    
+    dispatcher.ExitLoop()
+    win.Hide()
 
+    
 
 window(posX,posY,width,height)
 
@@ -55,6 +64,9 @@ window(posX,posY,width,height)
 
 
 
+ 
+
+#C:\\Users\\HUGO\\Videos\\4K Video Downloader\\SLCHLD  -  wednesday girl (prod. by MXXWLL).mp3
 def GetMusicNameFromPath(music_path):
     music_name = ""
     for i in range(len(music_path)-1,0,-1):
@@ -75,23 +87,32 @@ def findMusic(music_name, folder=media_pool.GetRootFolder()):
             return clip 
     return None
 
+
+
+
 with open("C:\\Users\\HUGO\\AppData\\Roaming\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\Beat_Script\\Davinci-Resolve-Beat-detection\\beats.txt", "r") as file:
     lines = file.readlines()
-    
+
+
 music_name = GetMusicNameFromPath(path)
 music_in_davinci = findMusic(music_name)
 music_in_davinci.DeleteMarkersByColor("Green")
 
+with open("C:\\Users\\HUGO\\AppData\\Roaming\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\Beat_Script\\Davinci-Resolve-Beat-detection\\path.txt","w") as path_file:
+    path_file.write(path)
+
+
+print("beat on frame : ")
 i = 0
 for line in lines:
     i+=1
-    if i == 16:
+    if (i == 50):
         break
     line = line.strip().split('.')
-    line = line[0] +'.'+ line[1][0] + line[1][1] + line[1][2]+ line[1][3]+ line[1][4]
+    line = line[0] +'.'+ line[1]
     line = float(''.join(line))
     line = line*fps
-    print("beat on second : " + str(int(round(line))))
+    print(str(int(round(line))))
     music_in_davinci.AddMarker(int(round(line)), "Green", "Marker Name", "Custom Notes", 1)
   
 print("Finish ! ")
