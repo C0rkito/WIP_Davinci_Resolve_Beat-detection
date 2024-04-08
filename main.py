@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from math import ceil
 
 projectManager = resolve.GetProjectManager()
 project = projectManager.GetCurrentProject()
@@ -10,7 +11,7 @@ fps = project.GetSetting("timelineFrameRate")
 
 posX,posY = 0,0
 width,height = 450,250
-path = "C:\\Users\\HUGO\\Videos\\4K Video Downloader\\Future, Metro Boomin, Travis Scott, Playboi Carti - Type Shit (Official Video).mp3"
+path = ""
 
 
 def window(posX,posY,width,height):
@@ -30,7 +31,6 @@ def window(posX,posY,width,height):
     
     def OnButtonClicked(ev):
         global path
-        print(path)
         dispatcher.ExitLoop()
         win.Hide()
 
@@ -66,7 +66,7 @@ def GetMusicNameFromPath(music_path):
 def findMusic(music_name, folder=media_pool.GetRootFolder()):
     for clip in folder.GetClipList():
         if clip.GetName() == music_name:
-            print(folder.GetName())
+            print("Process on "+clip.GetName()+" in "+folder.GetName())
             return clip
     
     for sub_folder in folder.GetSubFolderList():
@@ -82,13 +82,17 @@ music_name = GetMusicNameFromPath(path)
 music_in_davinci = findMusic(music_name)
 music_in_davinci.DeleteMarkersByColor("Green")
 
+i = 0
 for line in lines:
+    i+=1
+    if i == 16:
+        break
     line = line.strip().split('.')
-    line = line[0] +'.'+ line[1][0] + line[1][1]
+    line = line[0] +'.'+ line[1][0] + line[1][1] + line[1][2]+ line[1][3]+ line[1][4]
     line = float(''.join(line))
-    line = line*24
-    print(round(int(line)))
-    music_in_davinci.AddMarker(round(int(line)), "Green", "Marker Name", "Custom Notes", 1)
+    line = line*fps
+    print("beat on second : " + str(int(round(line))))
+    music_in_davinci.AddMarker(int(round(line)), "Green", "Marker Name", "Custom Notes", 1)
   
 print("Finish ! ")
 

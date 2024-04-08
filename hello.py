@@ -1,7 +1,7 @@
 import librosa
 
 # Charger le fichier audio
-audio_file = "C:\\Users\\HUGO\\Videos\\4K Video Downloader\\Future, Metro Boomin, Travis Scott, Playboi Carti - Type Shit (Official Video).mp3"
+audio_file = "C:\\Users\\HUGO\\Videos\\4K Video Downloader\\Yeat - Wat U Want 2 (prod. SKY) TikTok Version   sk sk sky.mp3"
 y, sr = librosa.load(audio_file)
 
 # Détecter les beats
