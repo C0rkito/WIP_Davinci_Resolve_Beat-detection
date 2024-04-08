@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 
+projectManager = resolve.GetProjectManager()
+project = projectManager.GetCurrentProject()
+media_pool = project.GetMediaPool()
+timeline = project.GetCurrentTimeline()
+root_folder = media_pool.GetRootFolder()
+
+fps = project.GetSetting("timelineFrameRate")
+
 posX,posY = 0,0
 width,height = 450,250
-path = ""
+path = "C:\\Users\\HUGO\\Videos\\4K Video Downloader\\Future, Metro Boomin, Travis Scott, Playboi Carti - Type Shit (Official Video).mp3"
 
 
 def window(posX,posY,width,height):
@@ -45,17 +53,42 @@ window(posX,posY,width,height)
 
 
 
-projectManager = resolve.GetProjectManager()
-project = projectManager.GetCurrentProject()
-storage = resolve.GetMediaStorage()  
-media_pool = project.GetMediaPool()
-timeline = project.GetCurrentTimeline()
 
-root_folder = media_pool.GetRootFolder()
-clip_list = root_folder.GetClipList()
 
-print(clip_list[5].AddMarker(10, "Green", "Marker Name", "Custom Notes", 1))
-#for i in range(100):
-   #if i%2 == 0:
-      
-     #timeline.GetItemListInTrack("audio", 1)[0].AddMarker(i*10, "Green", "Marker Name", "Custom Notes", 1)
+def GetMusicNameFromPath(music_path):
+    music_name = ""
+    for i in range(len(music_path)-1,0,-1):
+        if (music_path[i] == '\\'):
+            break
+        music_name = music_path[i] + music_name 
+    return music_name
+
+def findMusic(music_name, folder=media_pool.GetRootFolder()):
+    for clip in folder.GetClipList():
+        if clip.GetName() == music_name:
+            print(folder.GetName())
+            return clip
+    
+    for sub_folder in folder.GetSubFolderList():
+        clip = findMusic(music_name, sub_folder)
+        if clip:
+            return clip 
+    return None
+
+with open("C:\\Users\\HUGO\\AppData\\Roaming\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\Beat_Script\\Davinci-Resolve-Beat-detection\\beats.txt", "r") as file:
+    lines = file.readlines()
+    
+music_name = GetMusicNameFromPath(path)
+music_in_davinci = findMusic(music_name)
+music_in_davinci.DeleteMarkersByColor("Green")
+
+for line in lines:
+    line = line.strip().split('.')
+    line = line[0] +'.'+ line[1][0] + line[1][1]
+    line = float(''.join(line))
+    line = line*24
+    print(round(int(line)))
+    music_in_davinci.AddMarker(round(int(line)), "Green", "Marker Name", "Custom Notes", 1)
+  
+print("Finish ! ")
+
