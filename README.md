@@ -1,0 +1,2 @@
+# Davinci Resolve Beat detection
+ 
