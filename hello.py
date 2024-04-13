@@ -7,7 +7,7 @@ import numpy as np
 
 directory = os.getcwd()
 
-with open(os.getcwd()+"\\path.txt","r") as file:
+with open(directory+"\\path.txt","r") as file:
     file_path = file.read()
 
 
@@ -15,35 +15,37 @@ with open(os.getcwd()+"\\path.txt","r") as file:
 
 def onset():
     x, sr = librosa.load(file_path)
-    onset_frames = librosa.onset.onset_detect(y=x, sr=sr,wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
+    o_env = librosa.onset.onset_strength(y=x, sr=sr)
+    onset_frames = librosa.onset.onset_detect(onset_envelope=o_env,y=x, sr=sr,wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
     onset_times = librosa.frames_to_time(onset_frames)
     file_name_no_extension, _ = os.path.splitext(file_path)
-    print(onset_times[50])
-    onset_times.sort()
-    with open(os.getcwd()+"\\beats.txt", 'w') as f:
+    
+
+    print(onset_times[0])
+    with open(directory+"\\beats.txt", 'w') as f:
         f.write('\n'.join(['%.4f' % onset_time for onset_time in onset_times]))
     return onset_times
 def peak():
 
     y, sr = librosa.load(file_path)
-    onset_env = librosa.onset.onset_strength(y=y, sr=sr,
-                                             hop_length=512)
-    peaks = librosa.util.peak_pick(onset_env, pre_max=1, post_max=1, pre_avg=1, post_avg=1, delta=0.8, wait=1)
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+    peaks = librosa.util.peak_pick(onset_env, pre_max=30, post_max=30, pre_avg=30, post_avg=30, delta=0.8, wait=1)
     peaks_times = librosa.frames_to_time(peaks, sr=sr, hop_length=512)
-    peaks_times.sort()
+
     with open(directory+"\\beats.txt", "w") as file:
         for peak in peaks_times:
             file.write(str(peak)+"\n")
-    print(peaks_times[50])
+    print(peaks_times[0])
     return peaks_times
 
 def beat():
     y, sr = librosa.load(file_path)
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
     beat_times = librosa.frames_to_time(beat_frames, sr=sr)
-    print(beat_times[50])
     
-    beat_times.sort()
+    
+
+    print(beat_times[0])
     with open(directory+"\\beats.txt", "w") as file:
         for beat_time in beat_times:
             file.write(str(beat_time)+"\n")
@@ -61,7 +63,7 @@ def beat_2():
         beats_dynamic.extend(beats)
 
 
-    beats_dynamic.sort()
+
     with open(directory+'\\beats.txt', 'w') as file:
         for beat_time in beats_dynamic:
             file.write(str(beat_time) + '\n')
@@ -76,16 +78,16 @@ def big_beat(beats_arrays):
             else:
                 occurrences[element] = 1
 
-    non_uniques = [element for element, count in occurrences.items() if count >= 2]
-    return non_uniques
+    non_uniques = [element for element, count in occurrences.items() if count > 1]
     
-onset_tab = onset()
-peak_tab = peak()
+    print(non_uniques[0])
+    with open(directory+'\\beats.txt', 'w') as file:
+        for l in non_uniques:
+            file.write(str(l)+"\n")
+    
+#onset_tab = onset()
+#peak_tab = peak()
 beat_tab = beat()
-#beat2_tab = beat_2()
-
-tab = big_beat([onset_tab,peak_tab,beat_tab])
-with open (directory+'\\beats.txt', 'w') as file:
-    for line in tab:
-        file.write(str(line)+"\n")
+#tab = [onset_tab,peak_tab,beat_tab]
+#tab = big_beat(tab)
 
